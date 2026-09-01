@@ -1,0 +1,51 @@
+# Сборка сайта и публикация на GitHub Pages
+name: Deploy static content to Pages
+
+on:
+  # Ветка по умолчанию: в этом репозитории — main, в CrN9.github.io может
+  # оказаться master. Перечислены обе, чтобы деплой не молчал после переноса.
+  push:
+    branches: ['main', 'master']
+
+  # Позволяет запустить workflow вручную из вкладки Actions
+  workflow_dispatch:
+
+# Права GITHUB_TOKEN, нужные для публикации на Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Одновременно выполняется только один деплой
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          # Версия берётся из .nvmrc — чтобы CI и локальная сборка не разъезжались
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: './dist'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
