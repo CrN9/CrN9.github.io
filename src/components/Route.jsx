@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 
+const clamp01 = (value) => Math.min(Math.max(value, 0), 1);
+
 /**
  * Рельс маршрута: линия слева, вдоль которой идёт вся страница.
  * Закрашенная часть — то, что читатель уже проехал.
@@ -14,9 +16,23 @@ export default function Route({ children }) {
     let frame = 0;
     const update = () => {
       frame = 0;
+      const vh = window.innerHeight;
       const rect = node.getBoundingClientRect();
-      const travelled = window.innerHeight * 0.5 - rect.top;
-      const ratio = Math.min(Math.max(travelled / rect.height, 0), 1);
+      const scrolled = window.scrollY;
+      const maxScroll = document.documentElement.scrollHeight - vh;
+      const railBottom = rect.top + scrolled + rect.height;
+
+      // Линия закрашена до середины экрана. Рельс кончается вместе со
+      // страницей, поэтому на последнем экране середине уже некуда ехать —
+      // ей не хватает ровно того, что осталось ниже. На этом отрезке плавно
+      // опускаем метку к низу окна, иначе линия не доходит до последней
+      // остановки.
+      const shortfall = Math.max(railBottom - (maxScroll + vh * 0.5), 0);
+      const ramp = Math.min(vh, maxScroll);
+      const tail = ramp > 0 ? clamp01((scrolled - maxScroll + ramp) / ramp) : 1;
+      const marker = vh * 0.5 + shortfall * tail;
+
+      const ratio = clamp01((marker - rect.top) / rect.height);
       node.style.setProperty('--progress', `${ratio * 100}%`);
     };
     const onScroll = () => {
