@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
  */
 const NODES = {
   a: [60, 252],
-  b: [162, 118],
+  b: [150, 84],
   c: [252, 262],
   d: [342, 92],
   e: [392, 208],
@@ -16,7 +16,7 @@ const NODES = {
   h: [612, 232],
   i: [662, 82],
   j: [300, 170],
-  k: [148, 302],
+  k: [140, 322],
 };
 
 const EDGES = [
@@ -42,7 +42,53 @@ const EDGES = [
   ['h', 'i'],
 ];
 
-const ROUTE = ['a', 'b', 'j', 'e', 'h', 'i'];
+const START = 'a';
+const FINISH = 'i';
+
+/**
+ * Вес ребра — его длина на схеме, поэтому подсвеченный маршрут действительно
+ * кратчайший из нарисованных, а не выбранный на глаз. Алгоритм Дейкстры —
+ * тот же, что считает маршруты в дипломной системе.
+ */
+function shortestPath(start, finish) {
+  const neighbours = {};
+  for (const [from, to] of EDGES) {
+    (neighbours[from] ||= []).push(to);
+    (neighbours[to] ||= []).push(from);
+  }
+
+  const span = (from, to) =>
+    Math.hypot(NODES[from][0] - NODES[to][0], NODES[from][1] - NODES[to][1]);
+
+  const dist = {};
+  const came = {};
+  const unvisited = new Set(Object.keys(NODES));
+  for (const id of unvisited) dist[id] = Infinity;
+  dist[start] = 0;
+
+  while (unvisited.size) {
+    let nearest = null;
+    for (const id of unvisited) {
+      if (nearest === null || dist[id] < dist[nearest]) nearest = id;
+    }
+    unvisited.delete(nearest);
+    if (nearest === finish) break;
+
+    for (const next of neighbours[nearest]) {
+      const through = dist[nearest] + span(nearest, next);
+      if (through < dist[next]) {
+        dist[next] = through;
+        came[next] = nearest;
+      }
+    }
+  }
+
+  const route = [finish];
+  while (route[0] !== start) route.unshift(came[route[0]]);
+  return route;
+}
+
+const ROUTE = shortestPath(START, FINISH);
 
 export default function Network({ caption }) {
   const path = useRef(null);
@@ -90,13 +136,13 @@ export default function Network({ caption }) {
           />
         ))}
 
-        <text className="network__label" x={NODES.a[0] - 4} y={NODES.a[1] + 26}>
+        <text className="network__label" x={NODES[START][0] - 4} y={NODES[START][1] + 26}>
           старт
         </text>
         <text
           className="network__label"
-          x={NODES.i[0] - 18}
-          y={NODES.i[1] - 16}
+          x={NODES[FINISH][0] - 18}
+          y={NODES[FINISH][1] - 16}
         >
           финиш
         </text>
