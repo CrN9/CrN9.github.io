@@ -61,8 +61,8 @@ export const projects = {
           { manual: 2876, system: 2040 },
         ],
         figures: [
-          ['Пробег', 'до 79,5 % от исходного'],
-          ['Транспортные расходы', 'до 91,6 %'],
+          ['Пробег', 'до 62,5 % от исходного'],
+          ['Транспортные расходы', 'до 71,6 %'],
           ['Планирование региона', 'с нескольких часов до 2 минут'],
         ],
         source: 'Показатели из дипломной работы',
@@ -142,7 +142,7 @@ export const skills = {
     { title: 'Дизайн', items: 'Figma, пакет Adobe' },
     { title: '3D', items: 'Blender, КОМПАС-3D' },
     { title: 'Движки', items: 'Unreal Engine, Roblox Studio' },
-    { title: 'Код', items: 'Python, JavaScript, React, Node.js, C++, C#, SQL' },
+    { title: 'Код', items: 'Python, JavaScript, React, Node.js, SQL' },
   ],
 };
 
