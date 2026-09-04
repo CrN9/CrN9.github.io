@@ -3,7 +3,7 @@
 export const person = {
   name: 'Александр Смирнов',
   fullName: 'Смирнов Александр Игоревич',
-  role: 'UX‑редактор',
+  role: 'Стажер в направлении Дизайн продукта',
   city: 'Москва',
   year: '2026',
   email: 'aleksandr.smirnov.ig@gmail.com',
